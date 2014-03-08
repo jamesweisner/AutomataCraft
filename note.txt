@@ -1,0 +1,13 @@
+single (first) or multiplayer (later)
+infinite 2d space with randomly generated "terrain"
+cellular automata allow maximize complexity with minimum effort by programmer and player
+player controls one or more actors
+some sort of "upgrades"
+smoothly zoom in or out a lot, observing doesn't change the world
+no more than 255 atoms
+game is sandbox with goals:
+	build up structures
+	progress up technology
+fixed and rapid clock
+
+body is perimeter that you build inside

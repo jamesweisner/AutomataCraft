@@ -1,28 +1,26 @@
-interface Cell {
-  int update();
-  color getColor();
-}
-
-class CellEmpty implements Cell {
-  int update()
-  {
-    return -1;
-  }
+class Cell {
   color getColor()
   {
     return color(0, 0, 0);
   }
+  Boolean isEmpty()
+  {
+    return false;
+  }
 }
 
-class CellDirt implements Cell {
+class CellEmpty extends Cell {
+  Boolean isEmpty()
+  {
+    return true;
+  }
+}
+
+class CellRock extends Cell {
   color c;
-  CellDirt(int i)
+  CellRock(int i)
   {
     this.c = color(i, i, i);
-  }
-  int update()
-  {
-    return -1;
   }
   color getColor()
   {
@@ -30,26 +28,11 @@ class CellDirt implements Cell {
   }
 }
 
-class CellPlayer implements Cell {
-  int update()
-  {
-    return -1;
-  }
-  color getColor()
-  {
-    return color(128, 0, 0);
-  }
-}
-
-class CellEnergy implements Cell {
+class CellGold extends Cell {
   float glowRate;
-  CellEnergy()
+  CellGold()
   {
     this.glowRate = 2.0 + random(10);
-  }
-  int update()
-  {
-    return 4;
   }
   color getColor()
   {
@@ -57,4 +40,3 @@ class CellEnergy implements Cell {
     return color(200 + c, 150 - c, 50);
   }
 }
-

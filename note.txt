@@ -1,13 +1,75 @@
-single (first) or multiplayer (later)
-infinite 2d space with randomly generated "terrain"
-cellular automata allow maximize complexity with minimum effort by programmer and player
-player controls one or more actors
-some sort of "upgrades"
-smoothly zoom in or out a lot, observing doesn't change the world
-no more than 255 atoms
-game is sandbox with goals:
-	build up structures
-	progress up technology
-fixed and rapid clock
+Cells
+-----
 
-body is perimeter that you build inside
+The game world consists of 8 layers extending infinitely in all directions (to the extent allowed by a signed 64-bit number). Each layer is a 2-D grid of cells. Cells can be empty, full, or transparent to layers below.
+
+Empty cells (byte value 255) are shown as white and have no collision or special properties.
+
+Transparent cells (byte value 0) are also collisionless but are not necessarily empty. They are rendered using a noise function so the game client doesn't actually need to examine lower layers in order to visually render high layers. Cells on the lowest layer cannot be transparent. No cell previously empty or full can become transparent.
+
+Full cells (byte values 1 to 254) cast shadows of themselves onto all layers below. Visually they appear as one giant cell when viewed from lower layers.
+
+Chunks
+------
+
+Starting at the origin (0, 0) each 8 x 8 square of cells in any layer is a chunk. Space is configured such that each chunk lies precisely in the vertical shadow of one cell in the layer above. This has an interesting impact on distance relations. For example, the distance between two cells in layer 2 equal 8 times the distance between cells in layer 1, etc. The contents of chunks in the shadow of filled or empty cells are discarded to save memory.
+
+Cells must be emptied before they can be filled. Emptying a cell costs power and can require special abilities. Emptying a transparent cell in layers higher than one tells the layer below to empty non-empty cells in the corresponding chunk. On layers higher than two this process is recursive and a job queue is created and executed serially. Before emptying a cell or chunk there's a check to ensure the player has enough energy and ability to perform the action. The player must be careful when emptying cells in high layers as the process can fail partway through. Contents of filled cells emptied by the player are added to that player's inventory.
+
+Filling an entire chunk with the same type of gem in every cell causes the cell above that chunk to fill with this gem type. Because said chunk is subsequently discarded, an exchange rate of 64:1 exists between a layer and its neighbor above. This exchange rate is also respected for the cost, in terms of energy and items, to empty and fill cells. Chunk lines appear visually distinct to assist players in placing gems in alignment with chunk boundaries.
+
+Player Actions
+--------------
+
+The player can perform one operation on the server at a time. No client-server operations effect more than one chunk in a fixed cool-down time. So activity on higher layers becomes exponentially slower. Large jobs like emptying a cells at a high layer are broken into one chunk tasks to be executed serially. The player can get power-ups to lower this cool-down time, greatly speeding up their actions on higher layers. This means advanced players get more server resources than new players.
+
+In addition to emptying and filling cells, the player can activate cells filled by gems. Gems come in many types and each have their own special action performed upon activation. They can also have a passive action performed automatically while standing on them. Holding some gems in player inventory can also have special effects.
+
+The player can have one or more avatars that can independently move around and activate gems.
+
+Types
+-----
+
+Rock
+    [Mine] 1 energy.
+    [Collision] True.
+
+Brick
+    [Mine] 100 energy.
+    [Collision] True.
+
+Gold
+    [Mine] 0 energy.
+    [Activation] Allow the player to ascend or descent one layer. Costs 8^X energy where X is the destination layer.
+    [Passive]    Replenish (X * 64^Y) energy where X is the number of golden gems in the chunk and Y is the layer number minus one.
+    [Inventory]  Increase maximum energy by one.
+
+Emerald
+    [Mine] 0 energy.
+    [Activation] Search nearby cells for a solid 3 x 3 area of green grass. If found, replace the center cell with gold and then empty the 8 other cells.
+    [Passive]    Chance to spawn one green grass in a nearby empty cells. Costs 64^X energy where X is the destination layer number minus one.
+    [Inventory]  Decrease cool-down time by one log2(N) milliseconds or until the minimum threshold has been reached.
+
+Ruby
+    [Mine] 0 energy.
+    [Activation] Exchange 100 rock for 1 brick. Costs 100 * 64^X energy where X is the destination layer number minus one.
+    [Passive]    Enable brick protection in this chunks for X seconds. Extends to all adjacent chunks containing at least one ruby.
+    [Inventory]  Increase brick protection duration by one second.
+
+Sapphire
+    [Mine] 0 energy.
+    [Activation] Spawn a new avatar. Costs 10^X energy where X is the number of avatars you already have plus one.
+    [Passive]    ?
+    [Inventory]  Maximum number of avatars is calculated as floor(log10(N + 1)) + 1.
+
+Layers
+------
+
+1. Contains rock and gold.
+2. Contains emeralds.
+3. Contains rubies and simple mobs.
+4. Contains sapphires and smarter mobs.
+5. (basic traps)
+6. (aesthetic decorations)
+7. (advanced weapons)
+8. (god realm)

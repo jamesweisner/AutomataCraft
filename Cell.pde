@@ -91,7 +91,8 @@ class CellGold extends Cell implements Gemstone {
   }
   void activate(Entity entity)
   {
-    // TODO
+    if(this.chunk.syncGems(this) == this.chunk.cells.length * this.chunk.cells.length)
+      println("BOOM!"); // TODO merge into one cell on the layer above this chunk
   }
   int cost()
   {

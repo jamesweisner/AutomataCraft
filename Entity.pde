@@ -80,6 +80,13 @@ class EntityPlayer extends Entity {
       return; // Unable to instantiate.
     world.layers[z].setCell(cell, this.x, this.y);
   }
+  void activate()
+  {
+    Cell cell = world.layers[z].getCell(this.x, this.y);
+    if(!(cell instanceof Gemstone))
+      return; // Only works on gemstones.
+    ((Gemstone) cell).activate(this);
+  }
   color getColor()
   {
     int c = round(50 * (1 + sin(frameCount / 10.0)));

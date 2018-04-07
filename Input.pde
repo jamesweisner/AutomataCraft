@@ -39,8 +39,16 @@ void keyPressed()
   {
     if(key >= '1' && key <= '9')
       hotbar = int("" + key);
-    if(key == ' ')
-      focus.place(hotbar);
+    else switch(key)
+    {
+      case ' ':
+        focus.place(hotbar);
+        break;
+      case ENTER:
+      case RETURN:
+        focus.activate();
+        break;
+    }
   }
 }
 

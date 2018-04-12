@@ -74,7 +74,7 @@ class CellBrick extends Cell {
 class CellGold extends Cell implements Gemstone {
   CellGold()
   {
-    this.phase = 2.0 + random(10);
+    this.phase = 5.0 + random(20);
   }
   color getColor()
   {

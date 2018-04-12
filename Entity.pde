@@ -50,6 +50,7 @@ class EntityPlayer extends Entity {
     {
       case 1:
         cell = new CellRock();
+        ((CellRock) cell).c = color(round(255));
         break;
       case 2:
         cell = new CellBrick();
